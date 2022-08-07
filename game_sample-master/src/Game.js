@@ -71,68 +71,11 @@ Game.onload = function () {
     })
     Game.scene.add(collectibleManager);
 
-    //var projectileManager = new DE.GameObject({
-    //    spawnProj: function () {
-    //        if (projectile.length == 0) {
-    //            //projectile.add(new GameObject());
-    //            var coord;
-    //            var nb = Math.random();
-    //            if (nb > 0.5) {
-    //                coord = Math.floor(Math.random() * 1920 - 200);
-    //                if (nb > 0.25) {
-    //                    createProjectile(coord, "top");
-    //                    console.log("top");
-    //                } else {
-    //                    createProjectile(coord, "bottom");
-    //                    console.log("bottom");
-    //                }
-    //            } else {
-    //                coord = Math.floor(Math.random() * 1080 - 200);
-    //                if (nb > 0.75) {
-    //                    createProjectile(coord, "right");
-    //                    console.log("right");
-    //                } else {
-    //                    createProjectile(coord, "left");
-    //                    console.log("left");
-    //                }
-    //            }
-    //        }
-    //    },
-    //    automatisms: [['spawnProj', 'spawnProj']],
-    //});
-    //Game.scene.add(projectileManager);
-
-
-    // don't do this because DisplayObject bounds is not set to the render size but to the objects inside the scene
-    // scene.interactive = true;
-    // scene.click = function()
-    // {
-    //   console.log( "clicked", arguments );
-    // }
-
-    // if no Camera, we add the Scene to the render (this can change if I make Camera)
-
     Game.camera = new DE.Camera(0, 0, 1920, 1080, {
         scene: Game.scene,
         backgroundImage: 'bg',
     });
-    Game.camera.interactive = true;
-    Game.camera.pointermove = function (pos, e) {
-        Game.targetPointer.moveTo(pos, 100);
-    };
-    Game.camera.pointerdown = function (pos, e) {
-        // Deplace le projectile
-        // Game.ship.gameObjects[0].moveTo(Game.targetPointer, 500);
-        Game.targetPointer.renderer.setBrightness([1, 0]);
-    };
-    Game.camera.pointerup = function (pos, e) {
-        console.log('up');
-        Game.targetPointer.shake(10, 10, 200);
-    };
-    Game.targetPointer = new DE.GameObject({
-        zindex: 500,
-        renderer: new DE.SpriteRenderer({ spriteName: 'target', scale: 0.3 }),
-    });
+
     Game.render.add(Game.camera);
 
     Game.projManager;
@@ -155,7 +98,7 @@ Game.onload = function () {
             }
             if (lancementProj == true) {
                 lancementProj = false;
-                setTimeout(() => { createProj(Math.floor(Math.random() * 1720 + 200)); lancementProj = true }, projSpwanRate--);
+                setTimeout(() => { createProj(); lancementProj = true }, projSpwanRate--);
             }
         },
         automatisms: [['verif', 'verif']],
@@ -170,17 +113,6 @@ Game.onload = function () {
         scale: 3,
         renderers: [
             new DE.SpriteRenderer({ spriteName: 'playerLoop', loop: true, }),
-            new DE.TextRenderer('', {
-                localizationKey: 'player.data.realname',
-                y: -20,
-                textStyle: {
-                    fill: 'white',
-                    fontSize: 10,
-                    fontFamily: 'Snippet, Monaco, monospace',
-                    strokeThickness: 1,
-                    align: 'center',
-                },
-            }),
         ],
         axes: { x: 0, y: 0 },
         interactive: true,
@@ -213,13 +145,12 @@ Game.onload = function () {
                 }
             })
             projectileTab.forEach(function (item, index, array) {
-                if (boxesIntersect(Game.player.gameObjects[0], item)) {
+                if (boxesIntersect(Game.player.gameObjects[0], item.gameObjects[0])) {
                     Game.TextNbCollect = new DE.GameObject({
                         x: 900,
                         y: 400,
                         renderers: [
                             new DE.TextRenderer('Game over', {
-                                //localizationKey: 'player.data.realname',
                                 textStyle: {
                                     fill: 'black',
                                     fontSize: 72,
@@ -233,17 +164,14 @@ Game.onload = function () {
                     Game.scene.add(Game.TextNbCollect);
                     Game.btnRetry = new DE.GameObject({
                         x: 900,
-                        y: 800,
+                        y: 700,
                         renderers: [
-                            new DE.RectRenderer(200, 100, '0x' + '646665', {
-                                //lineStyle: [4, '0xFF3300', 1],
-                                //fill: true,
-                                x: -100,
+                            new DE.RectRenderer(900, 100, '0x' + '646665', {
+                                x: -450,
                                 y: -50,
                                 alpha: 1,
                             }),
-                            new DE.TextRenderer('Retry', {
-                                //localizationKey: 'player.data.realname',
+                            new DE.TextRenderer('Press \'space\' to retry', {
                                 textStyle: {
                                     fill: 'black',
                                     fontSize: 72,
@@ -270,28 +198,23 @@ Game.onload = function () {
                 collectible.splice(collectible.indexOf(collect), 1);
                 contactPiece = false;
                 nbPiece++;
-                Game.TextNbCollect.renderers[0].text = "Nombre de piece : " + nbPiece;
+                Game.TextNbCollect.renderers[0].text = nbPiece;
 
             }
             if ((this.y < 1080 - 48) && !onGround) {
-                this.translate({ x: this.axes.x, y: this.axes.y + 4 });
+                this.translate({ x: this.axes.x, y: this.axes.y + 6 });
             } else {
                 jump = true;
             }
 
         },
         automatisms: [['checkInputs', 'checkInputs']],
-        // automatisms: [['isOnGround', 'isOnGround']],
         gameObjects: [
             new DE.GameObject({
                 _staticPosition: true,
                 x: -4,
                 y: 15,
                 renderer: new DE.RectRenderer(10, 1, '0x' + 'FDCCFC', {
-                    //lineStyle: [4, '0xFF3300', 1],
-                    //fill: true,
-                    //x: 0,
-                    //y: 0,
                     alpha: 0,
                 }),
             }),
@@ -300,10 +223,6 @@ Game.onload = function () {
                 x: 8,
                 y: -4,
                 renderer: new DE.RectRenderer(1, 16, '0x' + 'FDCCFC', {
-                    //lineStyle: [4, '0xFF3300', 1],
-                    //fill: true,
-                    //x: 0,
-                    //y: 0,
                     alpha: 0,
                 }),
             }),
@@ -312,10 +231,6 @@ Game.onload = function () {
                 x: -8,
                 y: -4,
                 renderer: new DE.RectRenderer(1, 16, '0x' + 'FDCCFC', {
-                    //lineStyle: [4, '0xFF3300', 1],
-                    //fill: true,
-                    //x: 0,
-                    //y: 0,
                     alpha: 0,
                 }),
             }),
@@ -324,23 +239,15 @@ Game.onload = function () {
                 x: -4,
                 y: -10,
                 renderer: new DE.RectRenderer(10, 1, '0x' + 'FDCCFC', {
-                    //lineStyle: [4, '0xFF3300', 1],
-                    //fill: true,
-                    //x: 0,
-                    //y: 0,
                     alpha: 0,
                 }),
             }),
             new DE.GameObject({
                 _staticPosition: true,
-                x: -8,
+                x: -7,
                 y: -8,
-                renderer: new DE.RectRenderer(16, 24, '0x' + 'FFFFFF', {
-                    //lineStyle: [4, '0xFF3300', 1],
-                    //fill: true,
-                    //x: 0,
-                    //y: 0,
-                    alpha: 0,
+                renderer: new DE.RectRenderer(16, 22, '0x' + 'FFFFFF', {
+                    alpha: 0.5,
                 }),
             }),
         ]
@@ -353,11 +260,10 @@ Game.onload = function () {
         x: 100,
         y: 100,
         renderers: [
-            new DE.TextRenderer('"Nombre de piece : 0', {
-                //localizationKey: 'player.data.realname',
+            new DE.TextRenderer('0', {
                 textStyle: {
                     fill: 'black',
-                    fontSize: 34,
+                    fontSize: 72,
                     fontFamily: 'Snippet, Monaco, monospace',
                     strokeThickness: 1,
                     align: 'center',
@@ -365,7 +271,7 @@ Game.onload = function () {
             }),
         ],
     });
-    Game.TextNbCollect.renderers[0].text = "Nombre de piece : " + nbPiece;
+    Game.TextNbCollect.renderers[0].text = nbPiece;
 
     Game.scene.add(Game.TextNbCollect);
 
@@ -375,10 +281,6 @@ Game.onload = function () {
         x: 700,
         y: 1000,
         renderer: new DE.RectRenderer(400, 25, '0x' + 'CDCCFC', {
-            //lineStyle: [4, '0xFF3300', 1],
-            //fill: true,
-            //x: -20,
-            //y: -35,
         }),
     });
     Game.scene.add(a);
@@ -389,10 +291,6 @@ Game.onload = function () {
         x: 250,
         y: 800,
         renderer: new DE.RectRenderer(400, 25, '0x' + 'CDCCFC', {
-            //lineStyle: [4, '0xFF3300', 1],
-            //fill: true,
-            //x: -20,
-            //y: -35,
         }),
     });
     Game.scene.add(b);
@@ -403,10 +301,6 @@ Game.onload = function () {
         x: 1150,
         y: 800,
         renderer: new DE.RectRenderer(400, 25, '0x' + 'CDCCFC', {
-            //lineStyle: [4, '0xFF3300', 1],
-            //fill: true,
-            //x: -20,
-            //y: -35,
         }),
     });
     Game.scene.add(c);
@@ -417,10 +311,6 @@ Game.onload = function () {
         x: 700,
         y: 600,
         renderer: new DE.RectRenderer(400, 25, '0x' + 'CDCCFC', {
-            //lineStyle: [4, '0xFF3300', 1],
-            //fill: true,
-            //x: -20,
-            //y: -35,
         }),
     });
     Game.scene.add(d);
@@ -431,10 +321,6 @@ Game.onload = function () {
         x: 250,
         y: 400,
         renderer: new DE.RectRenderer(400, 25, '0x' + 'CDCCFC', {
-            //lineStyle: [4, '0xFF3300', 1],
-            //fill: true,
-            //x: -20,
-            //y: -35,
         }),
     });
     Game.scene.add(e);
@@ -445,10 +331,6 @@ Game.onload = function () {
         x: 1150,
         y: 400,
         renderer: new DE.RectRenderer(400, 25, '0x' + 'CDCCFC', {
-            //lineStyle: [4, '0xFF3300', 1],
-            //fill: true,
-            //x: -20,
-            //y: -35,
         }),
     });
     Game.scene.add(f);
@@ -459,10 +341,6 @@ Game.onload = function () {
         x: 700,
         y: 200,
         renderer: new DE.RectRenderer(400, 25, '0x' + 'CDCCFC', {
-            //lineStyle: [4, '0xFF3300', 1],
-            //fill: true,
-            //x: -20,
-            //y: -35,
         }),
     });
     Game.scene.add(g);
@@ -472,18 +350,6 @@ Game.onload = function () {
     Game.scene.add(
         Game.player,
     );
-
-    DE.Inputs.on('keyDown', 'down', function () {
-        console.log("Collide : " + boxesIntersect(Game.player.gameObjects[0], a));
-    });
-
-    DE.Inputs.on('keyDown', 'util', function () {
-        console.log(boxesIntersect(Game.player.gameObjects[0], collectible[0].trigger[0]));
-    });
-
-    //DE.Inputs.on('keyDown', 'fire', function () {
-    //    createProjectile(600,600);
-    //});
 
     DE.Inputs.on('keyDown', 'left', function () {
         Game.player.axes.x = -3;
@@ -523,12 +389,6 @@ function boxesIntersect(a, b) {
     return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
 }
 
-function isOnGround() {
-    plateforme.forEach(function (item, index, array) {
-        boxesIntersect(Game.player.gameObjects[0], item);
-    })
-}
-
 function createPiece(Vx, Vy) {
     var temp = new DE.GameObject({
         x: Vx,
@@ -552,57 +412,6 @@ function createPiece(Vx, Vy) {
     collectible.push(temp);
 }
 
-//function createProjectile(coord, direction) {
-//    var Vx;
-//    var Vy;
-//    var dirY = 0;
-//    var dirX = 0;
-//    var preparation = false;
-//    if (direction == "top") {
-//        Vx = coord;
-//        Vy = -400;
-//        dirY = 1;
-//    } else if (direction == "bottom") {
-//        Vx = coord;
-//        Vy = 1080 + 400;
-//        dirY = -1;
-//    } else if (direction == "left") {
-//        Vx = 1920 + 400;
-//        Vy = coord;
-//        dirX = -1;
-//    } else if (direction == "right") {
-//        Vx = -400;
-//        Vy = coord;
-//        dirX = 1;
-//    }
-//    var temp = new DE.GameObject({
-//        x: Vx,
-//        y: Vy,
-//        axes: { x: dirX, y: dirY },
-//        renderers: [
-//            new DE.SpriteRenderer({ spriteName: 'apple', loop: true, }),
-//        ],
-//        gameObjects: [
-//            new DE.GameObject({
-//                _staticPosition: true,
-//                x: 0,
-//                y: 0,
-//                renderer: new DE.RectRenderer(400, 200, '0x' + 'AFFCFC', {
-//                    //_staticPosition: true,
-//                    //alpha: 0,
-//                }),
-//            })
-//        ]
-//    });
-//    Game.scene.add(temp);
-//    projectile.push(temp);
-//    lancementProjectile(temp, temp.axes.x, temp.axes.y);
-//}
-
-//function lancementProjectile(proj, Vx, Vy) {
-//    setTimeout(() => { while (proj.x < 2500 && proj.x > -500 && proj.y < 1580 && proj.y > -500) { proj.translate({ x: Vx, y: Vy }); console.log("deplacement proj : Vx = " + proj.x + " Vy = " + proj.y) } console.log("fin proj : Vx = " + Vx + " Vy = " + Vy) }, 500);
-//}
-
 function sleep(milliseconds) {
     const date = Date.now();
     let currentDate = null;
@@ -611,12 +420,42 @@ function sleep(milliseconds) {
     } while (currentDate - date < milliseconds);
 }
 
-function createProj(Vx) {
+function createProj() {
+    var nb = Math.random();
+    var Vx;
+    var Vy;
+    var AxeX = 0;
+    var AxeY = 0;
+    var coord;
+    if (nb > 0.5) {
+        coord = Math.floor(Math.random() * 1920 - 200);
+        if (nb > 0.75) {
+            Vx = coord;
+            Vy = -200;
+            AxeY = 4;
+        } else {
+            Vx = coord;
+            Vy = 1280;
+            AxeY = -4;
+        }
+    } else {
+        coord = Math.floor(Math.random() * 1080 - 200);
+        if (nb > 0.25) {
+            Vx = -200;
+            Vy = coord;
+            AxeX = 4;
+        } else {
+            Vx = 2120;
+            Vy = coord;
+            AxeX = -4;
+        }
+    }
     Game.projectile;
     Game.projectile = new DE.GameObject({
         x: Vx,
-        y: -200,
-        scale : 8,
+        y: Vy,
+        z: 0.98,
+        scale: 8,
         lancer: true,
         aSupp: false,
         renderers: [
@@ -628,18 +467,14 @@ function createProj(Vx) {
                 x: -8,
                 y: -8,
                 renderer: new DE.RectRenderer(16, 16, '0x' + 'FDCCFC', {
-                    //lineStyle: [4, '0xFF3300', 1],
-                    //fill: true,
-                    //x: 0,
-                    //y: 0,
-                    alpha: 0,
+                    alpha: 0.5,
                 }),
             }),
         ],
         axes: { x: 0, y: 0 },
         trans: function () {
             if (this.lancer == true) {
-                this.translate({ x: this.axes.x, y: this.axes.y + 2 });
+                this.translate({ x: this.axes.x + AxeX, y: this.axes.y + AxeY });
             }
             if (this.x > 2200 || this.x < -300 || this.y > 1400 || this.y < -400) {
                 this.aSupp = true;
@@ -651,9 +486,6 @@ function createProj(Vx) {
     });
     Game.scene.add(Game.projectile);
     projectileTab.push(Game.projectile);
-}
-function spawnPlayer() {
-
 }
 
 
