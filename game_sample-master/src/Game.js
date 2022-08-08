@@ -28,13 +28,9 @@ var lastPosCollectible = 0;
 var projectileTab = [];
 var lancementProj = true;
 var projSpwanRate = 1000;
-var btnRetry = null;
-var isRestart = false;
 
 Game.init = function () {
     console.log('game init');
-    // DE.config.DEBUG = 1;
-    // DE.config.DEBUG_LEVEL = 2;
 
     // Create the renderer before assets start loading
     Game.render = new DE.Render('render', {
@@ -169,7 +165,7 @@ Game.onload = function () {
                             new DE.RectRenderer(900, 100, '0x' + '646665', {
                                 x: -450,
                                 y: -50,
-                                alpha: 1,
+                                alpha: 0.1,
                             }),
                             new DE.TextRenderer('Press \'space\' to retry', {
                                 textStyle: {
@@ -247,7 +243,7 @@ Game.onload = function () {
                 x: -7,
                 y: -8,
                 renderer: new DE.RectRenderer(16, 22, '0x' + 'FFFFFF', {
-                    alpha: 0.5,
+                    alpha: 0,
                 }),
             }),
         ]
@@ -345,6 +341,26 @@ Game.onload = function () {
     });
     Game.scene.add(g);
     plateforme.push(g);
+
+    var wall1 = new DE.GameObject({
+        _staticPosition: true,
+        x: -10,
+        y: 0,
+        renderer: new DE.RectRenderer(10, 1080, '0x' + 'CDCCFC', {
+        }),
+    });
+    Game.scene.add(wall1);
+    plateforme.push(wall1);
+
+    var wall2 = new DE.GameObject({
+        _staticPosition: true,
+        x: 1920,
+        y: 0,
+        renderer: new DE.RectRenderer(10, 1080, '0x' + 'CDCCFC', {
+        }),
+    });
+    Game.scene.add(wall2);
+    plateforme.push(wall2);
 
 
     Game.scene.add(
@@ -467,7 +483,7 @@ function createProj() {
                 x: -8,
                 y: -8,
                 renderer: new DE.RectRenderer(16, 16, '0x' + 'FDCCFC', {
-                    alpha: 0.5,
+                    alpha: 0,
                 }),
             }),
         ],
